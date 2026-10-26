@@ -1,0 +1,598 @@
+[
+  {
+    "id": "inv_1791818607427",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "Intermittent failures in CoreDNS and local-path-provisioner due to readiness probe issues and container restarts.",
+    "explanation": "The evidence shows that while the overall pod health is reported as healthy, there are warning events indicating that CoreDNS pods have been marked as 'Unhealthy' due to failed readiness probes, resulting in 503 status codes. Additionally, the local-path-provisioner pod is experiencing a 'BackOff' state due to a failed container restart. These issues suggest transient problems affecting service availability, particularly for DNS resolution and local storage provisioning.",
+    "confidence": 59,
+    "status": "success",
+    "created_at": "2026-10-12T20:53:27.427602",
+    "diagnosis_data": {
+      "root_cause": "Intermittent failures in CoreDNS and local-path-provisioner due to readiness probe issues and container restarts.",
+      "explanation": "The evidence shows that while the overall pod health is reported as healthy, there are warning events indicating that CoreDNS pods have been marked as 'Unhealthy' due to failed readiness probes, resulting in 503 status codes. Additionally, the local-path-provisioner pod is experiencing a 'BackOff' state due to a failed container restart. These issues suggest transient problems affecting service availability, particularly for DNS resolution and local storage provisioning.",
+      "fix": "Investigate the readiness probe configuration for CoreDNS and ensure that the service it depends on is healthy. For the local-path-provisioner, check the logs for the failed container to identify the cause of the failure and adjust resource limits or configurations as necessary.",
+      "kubectl_commands": [
+        "kubectl describe pod coredns-589f44dc88-gncwt -n kube-system",
+        "kubectl describe pod coredns-589f44dc88-mrz8j -n kube-system",
+        "kubectl logs local-path-provisioner-855c7b7774-l8rmz -n local-path-storage",
+        "kubectl get events --all-namespaces"
+      ],
+      "prevention": "Implement monitoring and alerting for readiness probe failures and container restarts to proactively address issues before they impact service availability.",
+      "confidence": 59,
+      "confidence_reasoning": [
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791801940369",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff due to a non-existent image.",
+    "explanation": "The evidence shows that the pod 'test-bad-pod' is stuck in a Pending state with an ImagePullBackOff status. The error message indicates that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. Additionally, there are no current issues with other deployments or pods, and the cluster is reachable.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-10-12T16:15:40.369932",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff due to a non-existent image.",
+      "explanation": "The evidence shows that the pod 'test-bad-pod' is stuck in a Pending state with an ImagePullBackOff status. The error message indicates that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. Additionally, there are no current issues with other deployments or pods, and the cluster is reachable.",
+      "fix": "Update the deployment configuration for 'test-bad-pod' to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl set image deployment/test-bad-pod <container-name>=<valid-image>",
+        "kubectl rollout status deployment/test-bad-pod"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791801864089",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff status due to a nonexistent image.",
+    "explanation": "The evidence shows that the pod 'test-bad-pod' is unable to start because it cannot pull the specified image 'nonexistent-image-for-testing:latest'. The error message indicates that the image does not exist or may require authorization, leading to the ImagePullBackOff status. This is corroborated by the event logs which also highlight the BackOff reason for this pod.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-10-12T16:14:24.089523",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff status due to a nonexistent image.",
+      "explanation": "The evidence shows that the pod 'test-bad-pod' is unable to start because it cannot pull the specified image 'nonexistent-image-for-testing:latest'. The error message indicates that the image does not exist or may require authorization, leading to the ImagePullBackOff status. This is corroborated by the event logs which also highlight the BackOff reason for this pod.",
+      "fix": "Update the pod specification to use a valid image that exists in the container registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only valid images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791800411178",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "There is no active issue in the Kubernetes cluster.",
+    "explanation": "All current pods are healthy, with no problematic pods reported. There are no warning events or unhealthy deployments, indicating that the cluster is functioning normally. The logs show no errors, further confirming the absence of issues.",
+    "confidence": 60,
+    "status": "success",
+    "created_at": "2026-10-12T15:50:11.178178",
+    "diagnosis_data": {
+      "root_cause": "There is no active issue in the Kubernetes cluster.",
+      "explanation": "All current pods are healthy, with no problematic pods reported. There are no warning events or unhealthy deployments, indicating that the cluster is functioning normally. The logs show no errors, further confirming the absence of issues.",
+      "fix": "No action is required as the cluster is healthy.",
+      "kubectl_commands": [],
+      "prevention": "Regularly monitor cluster health and set up alerts for any anomalies in pod status or deployment health.",
+      "confidence": 60,
+      "confidence_reasoning": [
+        "No clear failure signals in the collected evidence"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791799957893",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "There is no active issue in the Kubernetes cluster.",
+    "explanation": "All current pods are healthy and ready, there are no warning events or errors in the logs, and all deployments are healthy. This indicates that the cluster is functioning as expected without any current problems.",
+    "confidence": 60,
+    "status": "success",
+    "created_at": "2026-10-12T15:42:37.894008",
+    "diagnosis_data": {
+      "root_cause": "There is no active issue in the Kubernetes cluster.",
+      "explanation": "All current pods are healthy and ready, there are no warning events or errors in the logs, and all deployments are healthy. This indicates that the cluster is functioning as expected without any current problems.",
+      "fix": "No action is required as the cluster is healthy.",
+      "kubectl_commands": [],
+      "prevention": "Regularly monitor cluster health and set up alerts for any changes in pod status or deployment health.",
+      "confidence": 60,
+      "confidence_reasoning": [
+        "No clear failure signals in the collected evidence"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791798666400",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "No active issues detected; the cluster is healthy with no pods or deployments present.",
+    "explanation": "The evidence indicates that there are currently no pods or deployments in the cluster, which explains the absence of any health issues. The errors related to 'couldn't get current server API group list' are likely due to the absence of any active components to connect to, rather than an actual failure in the cluster's operation.",
+    "confidence": 60,
+    "status": "success",
+    "created_at": "2026-10-12T15:21:06.400399",
+    "diagnosis_data": {
+      "root_cause": "No active issues detected; the cluster is healthy with no pods or deployments present.",
+      "explanation": "The evidence indicates that there are currently no pods or deployments in the cluster, which explains the absence of any health issues. The errors related to 'couldn't get current server API group list' are likely due to the absence of any active components to connect to, rather than an actual failure in the cluster's operation.",
+      "fix": "No action is required as the cluster is currently healthy and has no workloads.",
+      "kubectl_commands": [],
+      "prevention": "Ensure that at least one deployment or pod is running to avoid confusion in future diagnostics.",
+      "confidence": 60,
+      "confidence_reasoning": [
+        "No clear failure signals in the collected evidence"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791798435218",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "There is no active issue in the Kubernetes cluster.",
+    "explanation": "All current workloads are healthy, with no problematic pods, unhealthy deployments, or warning events. The logs indicate no errors, and the cluster is reachable with all services and endpoints functioning properly.",
+    "confidence": 60,
+    "status": "success",
+    "created_at": "2026-10-12T15:17:15.218231",
+    "diagnosis_data": {
+      "root_cause": "There is no active issue in the Kubernetes cluster.",
+      "explanation": "All current workloads are healthy, with no problematic pods, unhealthy deployments, or warning events. The logs indicate no errors, and the cluster is reachable with all services and endpoints functioning properly.",
+      "fix": "No action is required as the cluster is operating normally.",
+      "kubectl_commands": [],
+      "prevention": "Regularly monitor pod health and set up alerts for any deployment or pod failures to catch issues early.",
+      "confidence": 60,
+      "confidence_reasoning": [
+        "No clear failure signals in the collected evidence"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791798092803",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "Kubernetes control plane components are failing due to authentication issues.",
+    "explanation": "The logs from the kube-controller-manager and kube-scheduler indicate repeated errors related to authentication and authorization, specifically mentioning 'the server has asked for the client to provide credentials' and 'client rate limiter Wait returned an error: context deadline exceeded'. This suggests that the control plane components are unable to authenticate with the API server, likely due to a misconfiguration or network issue preventing access to necessary resources such as configmaps for authentication. Additionally, the metrics-server and local-path-provisioner are also failing due to similar connectivity issues, indicating a broader problem with the cluster's ability to access its API server.",
+    "confidence": 75,
+    "status": "success",
+    "created_at": "2026-10-12T15:11:32.803882",
+    "diagnosis_data": {
+      "root_cause": "Kubernetes control plane components are failing due to authentication issues.",
+      "explanation": "The logs from the kube-controller-manager and kube-scheduler indicate repeated errors related to authentication and authorization, specifically mentioning 'the server has asked for the client to provide credentials' and 'client rate limiter Wait returned an error: context deadline exceeded'. This suggests that the control plane components are unable to authenticate with the API server, likely due to a misconfiguration or network issue preventing access to necessary resources such as configmaps for authentication. Additionally, the metrics-server and local-path-provisioner are also failing due to similar connectivity issues, indicating a broader problem with the cluster's ability to access its API server.",
+      "fix": "Check the network connectivity to the API server and ensure that the authentication configuration is correct. Verify that the necessary configmaps exist and are accessible. Restart the affected pods after addressing any configuration issues.",
+      "kubectl_commands": [
+        "kubectl get configmap -n kube-system",
+        "kubectl get configmap -n local-path-storage",
+        "kubectl logs kube-controller-manager-kind-control-plane -n kube-system",
+        "kubectl logs kube-scheduler-kind-control-plane -n kube-system",
+        "kubectl delete pod kube-controller-manager-kind-control-plane -n kube-system",
+        "kubectl delete pod kube-scheduler-kind-control-plane -n kube-system"
+      ],
+      "prevention": "Implement monitoring and alerting for control plane component health and authentication issues, and regularly audit the configuration of authentication resources.",
+      "confidence": 75,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected"
+      ]
+    }
+  },
+  {
+    "id": "inv_1791786973942",
+    "user_id": "4d91134a-d12e-4241-9675-d4af2026838d",
+    "namespace": null,
+    "root_cause": "Kube-controller-manager and kube-scheduler are unable to retrieve lease locks due to connection issues with the API server.",
+    "explanation": "The logs indicate that both the kube-controller-manager and kube-scheduler are experiencing errors related to retrieving lease locks, with the specific error being 'context deadline exceeded'. This suggests that they are unable to communicate with the API server, as evidenced by the connection refused errors in the kube-scheduler logs. Additionally, the local-path-provisioner is failing to start due to an inability to access its required ConfigMap, which further indicates network or API server availability issues. The events also show multiple components marked as 'Unhealthy', primarily due to readiness probe failures, which aligns with the connectivity issues observed.",
+    "confidence": 83,
+    "status": "success",
+    "created_at": "2026-10-12T12:06:13.942127",
+    "diagnosis_data": {
+      "root_cause": "Kube-controller-manager and kube-scheduler are unable to retrieve lease locks due to connection issues with the API server.",
+      "explanation": "The logs indicate that both the kube-controller-manager and kube-scheduler are experiencing errors related to retrieving lease locks, with the specific error being 'context deadline exceeded'. This suggests that they are unable to communicate with the API server, as evidenced by the connection refused errors in the kube-scheduler logs. Additionally, the local-path-provisioner is failing to start due to an inability to access its required ConfigMap, which further indicates network or API server availability issues. The events also show multiple components marked as 'Unhealthy', primarily due to readiness probe failures, which aligns with the connectivity issues observed.",
+      "fix": "Investigate the health of the API server and ensure it is running and accessible. Check for any network policies or firewall rules that may be blocking access. Restart the API server if necessary.",
+      "kubectl_commands": [
+        "kubectl get pods -n kube-system",
+        "kubectl logs kube-controller-manager-desktop-control-plane -n kube-system",
+        "kubectl logs kube-scheduler-desktop-control-plane -n kube-system",
+        "kubectl get events -n kube-system",
+        "kubectl get pods -n local-path-storage",
+        "kubectl logs local-path-provisioner-855c7b7774-b7759 -n local-path-storage"
+      ],
+      "prevention": "Implement monitoring and alerting for API server health and connectivity, and consider setting up redundancy for critical components to avoid single points of failure.",
+      "confidence": 83,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787826880912",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log showing a 'BackOff' reason related to the same image pull failure.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T16:04:40.912547",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log showing a 'BackOff' reason related to the same image pull failure.",
+      "fix": "Update the pod specification to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only valid images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787826838396",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence shows that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message indicates that Kubernetes is unable to pull the specified image 'nonexistent-image-for-testing:latest' from the Docker registry because it does not exist. This is corroborated by the event logs which also highlight the 'BackOff' reason related to the image pull failure.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T16:03:58.396805",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence shows that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message indicates that Kubernetes is unable to pull the specified image 'nonexistent-image-for-testing:latest' from the Docker registry because it does not exist. This is corroborated by the event logs which also highlight the 'BackOff' reason related to the image pull failure.",
+      "fix": "Update the pod specification to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801297579",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing to start due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message clearly states that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event logs which also report a 'BackOff' reason related to the same image pull failure. Since this is the only problematic pod and there are no other unhealthy deployments, the failure is isolated to this specific image issue.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:58:17.579173",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing to start due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message clearly states that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event logs which also report a 'BackOff' reason related to the same image pull failure. Since this is the only problematic pod and there are no other unhealthy deployments, the failure is isolated to this specific image issue.",
+      "fix": "Update the deployment configuration for 'test-bad-pod' to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl set image deployment/test-bad-pod <container-name>=<valid-image>:<tag> -n ai-test",
+        "kubectl rollout status deployment/test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801281757",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is in 'ImagePullBackOff' status due to a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' is unable to start because it cannot pull the specified image 'nonexistent-image-for-testing:latest'. The error message clearly states that the image does not exist or may require authorization, leading to the 'ImagePullBackOff' status. This is corroborated by the event logs which also report a 'BackOff' reason related to pulling the image.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:58:01.757440",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is in 'ImagePullBackOff' status due to a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' is unable to start because it cannot pull the specified image 'nonexistent-image-for-testing:latest'. The error message clearly states that the image does not exist or may require authorization, leading to the 'ImagePullBackOff' status. This is corroborated by the event logs which also report a 'BackOff' reason related to pulling the image.",
+      "fix": "Update the pod specification to use a valid image that exists in the container registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801135817",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log that also indicates a 'BackOff' reason for the same pod, confirming that the pod is unable to start due to the image issue.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:55:35.817091",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log that also indicates a 'BackOff' reason for the same pod, confirming that the pod is unable to start due to the image issue.",
+      "fix": "Update the deployment configuration to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl set image deployment/test-bad-deployment test-bad-pod=valid-image:latest -n ai-test",
+        "kubectl rollout status deployment/test-bad-deployment -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801098445",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message clearly states that the image 'nonexistent-image-for-testing:latest' could not be pulled because it does not exist in the Docker registry. This is corroborated by the event log which also shows a 'BackOff' reason related to the same image pull failure. Since this is the only problematic pod and there are no other unhealthy deployments or network issues, it is clear that the failure is isolated to this image pull issue.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:54:58.445208",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' in the 'ai-test' namespace is in a 'Pending' state with an 'ImagePullBackOff' status. The error message clearly states that the image 'nonexistent-image-for-testing:latest' could not be pulled because it does not exist in the Docker registry. This is corroborated by the event log which also shows a 'BackOff' reason related to the same image pull failure. Since this is the only problematic pod and there are no other unhealthy deployments or network issues, it is clear that the failure is isolated to this image pull issue.",
+      "fix": "Update the deployment configuration for 'test-bad-pod' to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl set image deployment/test-bad-pod <container-name>=<valid-image>:<tag> -n ai-test",
+        "kubectl rollout status deployment/test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801081866",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log which also indicates a 'BackOff' reason related to pulling the image. Since the pod is unable to start due to this image issue, it is the primary reason for the unhealthy pod status.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:54:41.866690",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log which also indicates a 'BackOff' reason related to pulling the image. Since the pod is unable to start due to this image issue, it is the primary reason for the unhealthy pod status.",
+      "fix": "Update the pod specification to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only valid images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787801042345",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing to start due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log showing a 'BackOff' reason related to the same image pull failure.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-27T08:54:02.345750",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing to start due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message specifies that the image 'nonexistent-image-for-testing:latest' cannot be pulled because it does not exist in the Docker registry. This is corroborated by the event log showing a 'BackOff' reason related to the same image pull failure.",
+      "fix": "Update the pod specification to use a valid image that exists in the Docker registry.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in your CI/CD pipeline to ensure that only valid images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787800895779",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+    "explanation": "The evidence shows that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message indicates that Kubernetes is unable to pull the specified image 'nonexistent-image-for-testing:latest' from Docker Hub because it does not exist or requires authorization. This is corroborated by the event log that also highlights the 'BackOff' reason related to the image pull failure.",
+    "confidence": 83,
+    "status": "success",
+    "created_at": "2026-08-27T08:51:35.779665",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is failing due to an ImagePullBackOff error caused by a nonexistent image.",
+      "explanation": "The evidence shows that the pod 'test-bad-pod' is in a 'Pending' state with an 'ImagePullBackOff' status. The error message indicates that Kubernetes is unable to pull the specified image 'nonexistent-image-for-testing:latest' from Docker Hub because it does not exist or requires authorization. This is corroborated by the event log that also highlights the 'BackOff' reason related to the image pull failure.",
+      "fix": "Update the pod specification to use a valid image that exists in the repository or ensure that the image is correctly pushed to the repository.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed, and consider using image scanning tools to verify image availability before deployment.",
+      "confidence": 83,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787749958566",
+    "user_id": "local",
+    "namespace": null,
+    "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff status due to a non-existent image.",
+    "explanation": "The evidence indicates that the pod 'test-bad-pod' is unable to pull the specified image 'nonexistent-image-for-testing:latest', resulting in an ImagePullBackOff status. The logs confirm that there are no relevant lines, but the event messages clearly state that the image could not be found or accessed. Additionally, there are other warnings related to scheduling and unhealthy components, but they do not directly impact the image pull issue.",
+    "confidence": 85,
+    "status": "success",
+    "created_at": "2026-08-26T18:42:38.566181",
+    "diagnosis_data": {
+      "root_cause": "The pod 'test-bad-pod' is in ImagePullBackOff status due to a non-existent image.",
+      "explanation": "The evidence indicates that the pod 'test-bad-pod' is unable to pull the specified image 'nonexistent-image-for-testing:latest', resulting in an ImagePullBackOff status. The logs confirm that there are no relevant lines, but the event messages clearly state that the image could not be found or accessed. Additionally, there are other warnings related to scheduling and unhealthy components, but they do not directly impact the image pull issue.",
+      "fix": "Update the pod specification to use a valid image that exists in the repository.",
+      "kubectl_commands": [
+        "kubectl edit pod test-bad-pod -n ai-test",
+        "kubectl delete pod test-bad-pod -n ai-test"
+      ],
+      "prevention": "Implement image validation checks in CI/CD pipelines to ensure that only existing images are deployed.",
+      "confidence": 85,
+      "confidence_reasoning": [
+        "Pod(s) in a failing state",
+        "Relevant log highlights collected",
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787748811175",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "Failed pod scheduling due to untolerated taints on the node.",
+    "explanation": "The events indicate that multiple pods, including CoreDNS and local-path-provisioner, are failing to schedule because the node has untolerated taints. This prevents the pods from being scheduled, leading to the 'FailedScheduling' events. Additionally, the 'Unhealthy' status for CoreDNS and kube-apiserver suggests that they are unable to respond to readiness probes, likely due to resource constraints or scheduling issues.",
+    "confidence": 59,
+    "status": "success",
+    "created_at": "2026-08-26T18:23:31.175767",
+    "diagnosis_data": {
+      "root_cause": "Failed pod scheduling due to untolerated taints on the node.",
+      "explanation": "The events indicate that multiple pods, including CoreDNS and local-path-provisioner, are failing to schedule because the node has untolerated taints. This prevents the pods from being scheduled, leading to the 'FailedScheduling' events. Additionally, the 'Unhealthy' status for CoreDNS and kube-apiserver suggests that they are unable to respond to readiness probes, likely due to resource constraints or scheduling issues.",
+      "fix": "Remove the taints from the node or add tolerations to the affected pods to allow them to be scheduled.",
+      "kubectl_commands": [
+        "kubectl taint nodes <node-name> <taint-key>:<taint-value>-",
+        "kubectl edit deployment coredns -n kube-system",
+        "kubectl edit deployment local-path-provisioner -n local-path-storage"
+      ],
+      "prevention": "Regularly monitor node taints and pod tolerations to ensure that critical services can be scheduled without issues.",
+      "confidence": 59,
+      "confidence_reasoning": [
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787748781832",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "Failed scheduling of pods due to untolerated taints on the node.",
+    "explanation": "The events indicate that multiple pods, including CoreDNS and a local-path provisioner, failed to schedule because the node had untolerated taints. This suggests that the node is not accepting new pods that do not have the required tolerations, leading to the 'FailedScheduling' events. Additionally, the 'Unhealthy' events for CoreDNS and the kube-apiserver indicate that they were unable to respond to readiness probes, likely due to resource constraints or scheduling issues.",
+    "confidence": 59,
+    "status": "success",
+    "created_at": "2026-08-26T18:23:01.832049",
+    "diagnosis_data": {
+      "root_cause": "Failed scheduling of pods due to untolerated taints on the node.",
+      "explanation": "The events indicate that multiple pods, including CoreDNS and a local-path provisioner, failed to schedule because the node had untolerated taints. This suggests that the node is not accepting new pods that do not have the required tolerations, leading to the 'FailedScheduling' events. Additionally, the 'Unhealthy' events for CoreDNS and the kube-apiserver indicate that they were unable to respond to readiness probes, likely due to resource constraints or scheduling issues.",
+      "fix": "Add the necessary tolerations to the affected pods or remove the taints from the node to allow scheduling.",
+      "kubectl_commands": [
+        "kubectl taint nodes <node-name> <taint-key>:<taint-value>-",
+        "kubectl patch deployment coredns -n kube-system --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/template/spec/tolerations\", \"value\": [{\"key\": \"<taint-key>\", \"operator\": \"Exists\", \"effect\": \"NoSchedule\"}]}]'",
+        "kubectl patch deployment local-path-provisioner -n local-path-storage --type='json' -p='[{\"op\": \"add\", \"path\": \"/spec/template/spec/tolerations\", \"value\": [{\"key\": \"<taint-key>\", \"operator\": \"Exists\", \"effect\": \"NoSchedule\"}]}]'"
+      ],
+      "prevention": "Regularly review node taints and ensure that critical pods have the appropriate tolerations to avoid scheduling issues.",
+      "confidence": 59,
+      "confidence_reasoning": [
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787748753565",
+    "user_id": "2e189712-7b74-4dbc-8455-5927cc47dd96",
+    "namespace": null,
+    "root_cause": "Coredns pods are unhealthy due to failed readiness probes and scheduling issues caused by untolerated taints on the node.",
+    "explanation": "The logs indicate that the coredns pods are failing their readiness probes, which is confirmed by the 'Unhealthy' event messages. Additionally, the 'FailedScheduling' events show that there are scheduling issues due to untolerated taints on the node, preventing new pods from being scheduled. This combination of unhealthy pods and scheduling failures is causing the observed issues in the kube-system namespace.",
+    "confidence": 59,
+    "status": "success",
+    "created_at": "2026-08-26T18:22:33.565262",
+    "diagnosis_data": {
+      "root_cause": "Coredns pods are unhealthy due to failed readiness probes and scheduling issues caused by untolerated taints on the node.",
+      "explanation": "The logs indicate that the coredns pods are failing their readiness probes, which is confirmed by the 'Unhealthy' event messages. Additionally, the 'FailedScheduling' events show that there are scheduling issues due to untolerated taints on the node, preventing new pods from being scheduled. This combination of unhealthy pods and scheduling failures is causing the observed issues in the kube-system namespace.",
+      "fix": "Investigate the taints on the node and either remove them or add tolerations to the coredns deployment to allow scheduling. Also, check the readiness probe configuration for coredns to ensure it is correctly set up.",
+      "kubectl_commands": [
+        "kubectl describe node <node-name>",
+        "kubectl get pods -n kube-system -o wide",
+        "kubectl edit deployment coredns -n kube-system",
+        "kubectl get events -n kube-system"
+      ],
+      "prevention": "Regularly monitor pod health and node taints, and ensure that deployments have appropriate tolerations for the nodes they are scheduled on.",
+      "confidence": 59,
+      "confidence_reasoning": [
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787747815134",
+    "user_id": "local",
+    "namespace": null,
+    "root_cause": "Failed pod scheduling due to untolerated taints on the node.",
+    "explanation": "The events indicate that multiple pods, including CoreDNS and a local path provisioner, failed to schedule because the node had untolerated taints. Additionally, the readiness probe for CoreDNS failed, which suggests that the service was not healthy and could not respond to requests. This indicates a failure in the scheduling process and readiness checks, leading to potential service disruptions.",
+    "confidence": 59,
+    "status": "success",
+    "created_at": "2026-08-26T18:06:55.134734",
+    "diagnosis_data": {
+      "root_cause": "Failed pod scheduling due to untolerated taints on the node.",
+      "explanation": "The events indicate that multiple pods, including CoreDNS and a local path provisioner, failed to schedule because the node had untolerated taints. Additionally, the readiness probe for CoreDNS failed, which suggests that the service was not healthy and could not respond to requests. This indicates a failure in the scheduling process and readiness checks, leading to potential service disruptions.",
+      "fix": "Remove the taints from the node or add tolerations to the affected pods to allow them to be scheduled.",
+      "kubectl_commands": [
+        "kubectl describe node <node-name> | grep Taints",
+        "kubectl taint nodes <node-name> <key>:<value>:NoSchedule-",
+        "kubectl edit deployment coredns -n kube-system",
+        "kubectl edit deployment local-path-provisioner -n local-path-storage"
+      ],
+      "prevention": "Regularly review node taints and ensure that critical pods have appropriate tolerations to avoid scheduling issues.",
+      "confidence": 59,
+      "confidence_reasoning": [
+        "Warning events found"
+      ]
+    }
+  },
+  {
+    "id": "inv_1787723281660",
+    "user_id": "testuser",
+    "namespace": null,
+    "root_cause": "TEST_ROOT",
+    "explanation": "explain",
+    "confidence": 90,
+    "status": "success",
+    "created_at": "2026-08-26T11:18:01.660665",
+    "diagnosis_data": {
+      "foo": "bar"
+    }
+  }
+]
